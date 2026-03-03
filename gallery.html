@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gallery | Acme Gravel & Hauling</title>
+  <meta name="description" content="Recent gravel delivery and driveway projects." />
+  <style>
+    :root{
+      --bg:#0b0f14; --card:#111827; --muted:#9ca3af; --text:#e5e7eb;
+      --brand:#f59e0b; --line:rgba(255,255,255,.10); --shadow:0 10px 30px rgba(0,0,0,.35);
+      --radius:18px; --max:1100px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: radial-gradient(900px 600px at 15% 0%, rgba(245,158,11,.18), transparent 60%), var(--bg);
+      color:var(--text);
+    }
+    a{color:inherit; text-decoration:none}
+    .container{max-width:var(--max); margin:0 auto; padding:0 20px}
+    header{position:sticky; top:0; z-index:50; backdrop-filter: blur(10px);
+      background: rgba(11,15,20,.72); border-bottom:1px solid var(--line);
+    }
+    .bar{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 0}
+    .brand{display:flex; gap:10px; align-items:center; font-weight:900}
+    .logo{width:36px; height:36px; border-radius:12px; display:grid; place-items:center;
+      background: linear-gradient(135deg, var(--brand), #fb7185); color:#111; box-shadow: var(--shadow);
+    }
+    .links{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .pill{border:1px solid var(--line); padding:8px 12px; border-radius:999px; background: rgba(255,255,255,.03); font-weight:700}
+    .pill:hover{border-color:rgba(245,158,11,.5)}
+    main{padding:26px 0 40px}
+    h1{margin:0 0 6px; font-size: clamp(26px, 4vw, 40px); letter-spacing:-.5px}
+    .sub{margin:0 0 18px; color:var(--muted)}
+    .toolbar{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:16px 0}
+    select, input{
+      background: rgba(255,255,255,.03);
+      border:1px solid var(--line);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:14px;
+      outline:none;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:12px;
+    }
+    @media (max-width: 900px){ .grid{grid-template-columns: 1fr} }
+    .tile{
+      border:1px solid var(--line);
+      background: rgba(17,24,39,.35);
+      border-radius: var(--radius);
+      overflow:hidden;
+      cursor:pointer;
+      box-shadow: var(--shadow);
+    }
+    .thumb{
+      height: 200px;
+      background-size: cover;
+      background-position: center;
+      filter:saturate(1.05);
+    }
+    .meta{padding:12px}
+    .meta strong{display:block; margin-bottom:2px}
+    .meta span{color:var(--muted); font-size:13px}
+    /* Lightbox */
+    .lightbox{
+      position:fixed; inset:0; display:none; place-items:center;
+      background: rgba(0,0,0,.75);
+      padding:18px;
+      z-index:1000;
+    }
+    .lightbox.open{display:grid}
+    .panel{
+      width:min(980px, 100%);
+      border-radius:18px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.14);
+      background:#0b0f14;
+      box-shadow: var(--shadow);
+    }
+    .panel img{width:100%; height:auto; display:block}
+    .panel .cap{padding:12px 14px; color:var(--muted); display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap}
+    .close{
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      color:var(--text);
+      padding:8px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:800;
+    }
+    footer{border-top:1px solid var(--line); padding:18px 0; color:var(--muted); font-size:13px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="bar">
+        <a class="brand" href="index.html"><div class="logo">G</div>Acme Gravel & Hauling</a>
+        <div class="links">
+          <a class="pill" href="index.html">Home</a>
+          <a class="pill" href="contact.html">Get a Quote</a>
+          <a class="pill" href="tel:+1-740-555-0123">Call</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1>Recent jobs</h1>
+    <p class="sub">Swap these placeholders with real photos from your phone (or Facebook) once you have permission.</p>
+
+    <div class="toolbar">
+      <label>
+        Filter:
+        <select id="filter">
+          <option value="all">All</option>
+          <option value="driveway">Driveways</option>
+          <option value="delivery">Deliveries</option>
+          <option value="site">Site prep</option>
+        </select>
+      </label>
+
+      <label>
+        Search:
+        <input id="search" type="text" placeholder="e.g. #57, limestone, new build" />
+      </label>
+    </div>
+
+    <div class="grid" id="grid"></div>
+  </main>
+
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <div class="panel" role="dialog" aria-modal="true">
+      <img id="lbImg" alt="Project photo" />
+      <div class="cap">
+        <div id="lbCap"></div>
+        <button class="close" id="lbClose">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      © <span id="y"></span> Acme Gravel & Hauling • <a href="contact.html" style="text-decoration:underline; text-decoration-color:rgba(255,255,255,.25)">Request a quote</a>
+    </div>
+  </footer>
+
+  <script>
+    const photos = [
+      { title:"Driveway refresh – #57 top layer", tag:"driveway", note:"2 loads • reshaped + topped", src:"https://images.unsplash.com/photo-1523413651479-597eb2da0ad6?auto=format&fit=crop&w=1600&q=80" },
+      { title:"Gravel delivery – driveway base", tag:"delivery", note:"Tight access delivery", src:"https://images.unsplash.com/photo-1501700493788-fa1a4fc9fe08?auto=format&fit=crop&w=1600&q=80" },
+      { title:"Stone pad for shed", tag:"site", note:"Compacted base", src:"https://images.unsplash.com/photo-1590650153855-d9e808231d41?auto=format&fit=crop&w=1600&q=80" },
+      { title:"Farm lane touch-up", tag:"driveway", note:"Added base + leveled", src:"https://images.unsplash.com/photo-1581091870622-2c9c1a20b3a9?auto=format&fit=crop&w=1600&q=80" },
+      { title:"Limestone delivery", tag:"delivery", note:"Clean topcoat", src:"https://images.unsplash.com/photo-1521412644187-c49fa049e84d?auto=format&fit=crop&w=1600&q=80" },
+      { title:"Small grading & placement", tag:"site", note:"Material spread + finish", src:"https://images.unsplash.com/photo-1563729784474-d77dbb933a9f?auto=format&fit=crop&w=1600&q=80" }
+    ];
+
+    const grid = document.getElementById("grid");
+    const filter = document.getElementById("filter");
+    const search = document.getElementById("search");
+
+    const lb = document.getElementById("lightbox");
+    const lbImg = document.getElementById("lbImg");
+    const lbCap = document.getElementById("lbCap");
+    const lbClose = document.getElementById("lbClose");
+
+    function render(){
+      const f = filter.value;
+      const q = search.value.trim().toLowerCase();
+
+      grid.innerHTML = "";
+      photos
+        .filter(p => (f === "all" ? true : p.tag === f))
+        .filter(p => !q ? true : (p.title + " " + p.note).toLowerCase().includes(q))
+        .forEach(p => {
+          const tile = document.createElement("div");
+          tile.className = "tile";
+          tile.innerHTML = `
+            <div class="thumb" style="background-image:url('${p.src}')"></div>
+            <div class="meta">
+              <strong>${p.title}</strong>
+              <span>${p.note}</span>
+            </div>
+          `;
+          tile.addEventListener("click", () => openLightbox(p));
+          grid.appendChild(tile);
+        });
+    }
+
+    function openLightbox(p){
+      lbImg.src = p.src;
+      lbCap.textContent = `${p.title} — ${p.note}`;
+      lb.classList.add("open");
+      lb.setAttribute("aria-hidden", "false");
+    }
+
+    function closeLightbox(){
+      lb.classList.remove("open");
+      lb.setAttribute("aria-hidden", "true");
+      lbImg.src = "";
+    }
+
+    lb.addEventListener("click", (e) => {
+      if (e.target === lb) closeLightbox();
+    });
+    lbClose.addEventListener("click", closeLightbox);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeLightbox();
+    });
+
+    document.getElementById("y").textContent = new Date().getFullYear();
+    filter.addEventListener("change", render);
+    search.addEventListener("input", render);
+
+    render();
+  </script>
+</body>
+</html>
